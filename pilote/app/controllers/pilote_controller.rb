@@ -103,7 +103,10 @@ class PiloteController < ApplicationController
   def tracer(action, objet, details = nil)
     objet = "intervention:#{objet.id}" if objet.is_a?(Intervention)
     JournalEntry.ajouter("Humain:#{nom_humain}", action, objet, details)
-    system("python3", "export_static.py", chdir: Rails.root.join("..").to_s, out: File::NULL, err: File::NULL)
+    # export puis publication auto GitHub Pages en arrière-plan (AUTO_PUBLISH=0 pour désactiver)
+    acteur = "Humain:#{nom_humain}"
+    Process.detach(spawn("sh", "-c", "python3 export_static.py && python3 publier.py \"$0\" \"Publication auto après action Pilote ($1)\"",
+                         acteur, action, chdir: Rails.root.join("..").to_s, out: File::NULL, err: File::NULL))
   end
   def changer(i, valeurs)
     diff = valeurs.select { |k, val| CHAMPS.include?(k) && i[k].to_s != val.to_s }.to_h { |k, val| [k, { avant: i[k], apres: val }] }

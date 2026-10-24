@@ -14,6 +14,14 @@ dans un journal append-only, visible et modifiable depuis l'app humaine **Pilote
 - **Mission principale de l'équipe : l'architecture de l'application** (moteur, outils, routage, Pilote, vue publique), pas la production de données.
 - Le 24/10/2026, toutes les interventions factices ont été purgées sur ordre du propriétaire (trace `PURGE` dans le journal).
 
+## Publication automatique (GitHub Pages)
+À la fin de chaque `python3 orchestrator.py --pending` et après chaque action Pilote, `docs/` est régénéré puis `publier.py` :
+- ne fait rien si `docs/` n'a pas changé (jamais de commit vide) ;
+- sinon committe **uniquement `docs/`** (« Publication auto après cycle de l'équipe » / « … après action Pilote ») et pousse sur `main`, sans force push ;
+- journalise `PUBLIE_PAGES` (avec le commit) ou `ECHEC_PUBLICATION` (étape + erreur) sans interrompre le run ; un push échoué est retenté au run suivant ;
+- désactivation : `AUTO_PUBLISH=0` (ex. `AUTO_PUBLISH=0 python3 orchestrator.py --pending`, ou au lancement de Pilote).
+Pré-requis : git configuré et authentifié pour pousser (`gh auth status`).
+
 ## Équipe
 - **Réception** : enregistre les demandes (et les suivis).
 - **Trieur** : classe catégorie/priorité avec l'outil `classifier_categorie` ; s'il n'existe pas, il le fait écrire.

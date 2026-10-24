@@ -19,10 +19,12 @@ def main():
     log("Orchestrateur", "INITIALISE", "systeme", {"logements": len(LOGEMENTS), "interventions_creees": 0})
     _export()
 
-def _export():
+def _export(publication=False, acteur="Orchestrateur"):
     try:
         import export_static; export_static.export(); log("Orchestrateur", "EXPORTE_PAGES", "docs/")
-    except Exception as x: log("Orchestrateur", "ECHEC_EXPORT", "docs/", {"erreur": str(x)})
+    except Exception as x: log("Orchestrateur", "ECHEC_EXPORT", "docs/", {"erreur": str(x)}); return
+    if publication:   # publication auto GitHub Pages (AUTO_PUBLISH=0 pour désactiver)
+        import publier; publier.publier(acteur, "Publication auto après cycle de l'équipe")
 
 def run_pending(declencheur="Orchestrateur"):
     """Traite les interventions en statut 'nouvelle' (ex. ajoutées à la main). Un seul tour ; les suivis restent en attente."""
@@ -43,7 +45,7 @@ def run_pending(declencheur="Orchestrateur"):
     if not load_tool("suivi_par_logement", "Orchestrateur"):
         smith.build("suivi_par_logement", raison="Besoin d'un tableau de bord d'avancement par logement")
     log("Orchestrateur", "FIN_CYCLE", "systeme", {"traitees": len(ids), "suivis_ouverts": suivis})
-    _export(); return len(ids), suivis
+    _export(publication=True, acteur=declencheur); return len(ids), suivis
 
 if __name__ == "__main__":
     if "--pending" in sys.argv: print(run_pending())
