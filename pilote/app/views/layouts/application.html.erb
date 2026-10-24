@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="/pilote.css">
 </head>
 <body>
+<% if content_for?(:nu) %><%= yield %><% else %>
   <header><a href="/">🧭 Pilote</a> <small>· <%= content_for(:titre) || "Accueil" %></small></header>
   <main>
     <% if notice %><p class="flash"><%= notice %></p><% end %>
@@ -15,5 +16,6 @@
     <p style="text-align:center;font-size:14px">
       <%= nom_humain ? "Vous êtes : #{nom_humain}" : "Prénom non défini" %> · <a href="/nom">changer</a></p>
   </main>
+<% end %>
 </body>
 </html>

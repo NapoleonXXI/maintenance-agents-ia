@@ -3,8 +3,13 @@
 Les cinq agents Grok Bot (Réception, Trieur, Répartiteur, Archiviste, Forgeron) partagent cet ordinateur.
 Dossier : /workspace/maintenance-agents-ia — dépôt : github.com/NapoleonXXI/maintenance-agents-ia (gh authentifié).
 
+## Règle du propriétaire (ordre de Raphaël)
+- **Seul le propriétaire crée les interventions** (via Pilote). L'équipe ne crée jamais d'intervention fictive, de test ou de démonstration : aucun scénario n'est rejoué, `--reset` ne fait que préparer une base vide (10 logements + outils de base).
+- **Mission principale de l'équipe : l'architecture de l'application** (moteur, outils, routage, Pilote, vue publique), pas la production de données.
+- Le 24/10/2026, toutes les interventions factices ont été purgées sur ordre du propriétaire (trace `PURGE` dans le journal).
+
 ## Accès
-- Lire / exécuter : `python3 orchestrator.py` (test complet, `--reset` efface la base), `python3 tools/<outil>.py`.
+- Lire / exécuter : `python3 orchestrator.py --pending` (traite les demandes du propriétaire), `--reset` (base neuve vide — ne jamais lancer sur la base réelle : efface le journal), `python3 tools/<outil>.py`.
 - Base : `maintenance.db` (SQLite). Journal en ajout seul : toute action y est inscrite avec le nom de l'agent.
 - App humaine « Pilote » (Ruby on Rails, dossier `pilote/`) : `cd pilote && bin/rails server -b 0.0.0.0 -p 8810`. Elle lit/écrit la même base `maintenance.db`.
 

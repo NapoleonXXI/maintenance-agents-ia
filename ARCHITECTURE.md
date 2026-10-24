@@ -11,11 +11,11 @@
 
 ## Deux cœurs
 - **Cœur agents** : `core.py` (base, journal, registre d'outils versionné, retrait), `agents.py` (Réception, Trieur,
-  Répartiteur, Archiviste, Forgeron + technicien simulé), `orchestrator.py` (test complet ou traitement des demandes en attente).
+  Répartiteur, Archiviste, Forgeron + technicien simulé), `orchestrator.py` (préparation d'une base vide ou traitement des demandes du propriétaire).
 - **Cœur humain** : **Pilote**, app Ruby on Rails 8 (`pilote/`, sans build JS), port 8810. Modèles ActiveRecord branchés sur les tables existantes
   (`journal` en insertion seule), contrôleur unique `PiloteController`, CSS partagé `pilote/public/pilote.css`.
   « Lancer l'équipe » exécute `python3 orchestrator.py --pending`. Suppression = statut `supprimee` + entrée `SUPPRIME` avec l'état avant.
-- **Vue publique** : `export_static.py` (Python) génère `docs/` en lecture seule (tuiles, logements, classement, journal, avancé) après chaque cycle et chaque action Pilote.
+- **Vue publique** : `export_static.py` (Python) génère `docs/index.html` : uniquement les 10 cases carrées numérotées (couleur = état) après chaque cycle et chaque action Pilote.
 
 ## Base SQLite (`maintenance.db`, non versionnée, reconstruite par le dépôt)
 `logements`, `interventions` (statuts : nouvelle, assignee, a_suivre, suivi_ouvert, cloturee ; `parent_id` relie un suivi),
@@ -25,10 +25,10 @@
 ## Auto-construction
 Le Forgeron écrit un fichier dans `tools/`, le compile, l'enregistre (sha256, version) ; les agents le chargent via
 le registre. Réécriture = nouvelle version journalisée ; un outil retiré (`actif=0`) n'est plus chargé.
-Les fichiers de `tools/` présents dans le dépôt sont ceux générés par le dernier test : ils sont réécrits à chaque `--reset`.
+Les fichiers de `tools/` présents dans le dépôt sont ceux écrits par le Forgeron ; ils sont réécrits à chaque `--reset`.
 
 ## Commandes
-- `python3 orchestrator.py --reset` : reconstruit la base depuis zéro et rejoue le test (2 vagues + adaptation).
+- `python3 orchestrator.py --reset` : reconstruit une base vide (10 logements + outils, aucune intervention). L'auto-adaptation du Forgeron s'exécute dans `--pending` sur les vraies demandes « divers ».
 - `python3 orchestrator.py --pending` : l'équipe traite les interventions en statut `nouvelle`.
 - `cd pilote && bin/rails server -b 0.0.0.0 -p 8810` : Pilote.
 - Codespaces : `.devcontainer/` installe Ruby 3.3 + Python 3.12, les gems, et démarre Pilote sur 8810.
