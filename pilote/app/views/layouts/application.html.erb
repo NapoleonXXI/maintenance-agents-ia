@@ -8,7 +8,7 @@
 </head>
 <body>
 <% if content_for?(:nu) %><%= yield %><% else %>
-  <header><a href="/">🧭 Pilote</a> <small>· <%= content_for(:titre) || "Accueil" %></small></header>
+  <header class="entete"><button type="button" class="retour" aria-label="Retour" onclick="if(history.length>1&&document.referrer){history.back()}else{location.href='/'}">←</button><h1><%= content_for(:titre) || "Pilote" %></h1></header>
   <main>
     <% if notice %><p class="flash"><%= notice %></p><% end %>
     <% if alert %><p class="note"><%= alert %></p><% end %>

@@ -1,16 +1,18 @@
-<% content_for :nu, true %>
+<% content_for :titre, "Journal d'interventions" %>
 <div class="page-nav">
 <div class="periodes">
 <% { "jour" => "Jour", "semaine" => "Semaine", "mois" => "Mois" }.each do |k, v| %>
   <a class="per <%= 'actif' if @periode == k %>" href="<%= journal_interventions_path(periode: k) %>"><%= v %></a>
 <% end %>
 </div>
+<p class="legende"><span class="pastille st-nouvelle"></span>Nouvelle <span class="pastille st-encours"></span>En cours <span class="pastille st-terminee"></span>Terminée</p>
 <% if @interventions.empty? %>
   <p class="vide">Aucune intervention</p>
 <% else %>
   <ul class="liste-int">
   <% @interventions.each do |i| %>
-    <li><b><%= i.logement_id %></b> · <%= i.cree_le.to_s.tr("T", " ")[0, 16] %> · <%= i.description %> · <%= i.statut %></li>
+    <% g = Intervention.groupe_statut(i.statut) %>
+    <li class="st-<%= g %>"><b>Logement <%= i.logement_id %></b> · <%= i.description %><br><small><%= i.cree_le.to_s.tr("T", " ")[0, 16] %> · <%= Intervention::LIBELLES[g] %></small></li>
   <% end %>
   </ul>
 <% end %>

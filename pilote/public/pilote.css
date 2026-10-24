@@ -45,3 +45,14 @@ body{padding-bottom:96px}
 .per.actif{background:#2e7d32;color:#fff}
 .vide{text-align:center;color:#888;font-size:20px;margin-top:40px}
 .liste-int{list-style:none;padding:0}.liste-int li{padding:12px 0;border-bottom:1px solid #eee}
+/* En-tête fixe (toutes les pages sauf l'accueil) */
+.entete{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;gap:8px;height:60px;padding:0 8px;padding-top:env(safe-area-inset-top);box-sizing:content-box}
+.entete h1{margin:0;font-size:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.retour{flex:0 0 52px;height:52px;border:0;border-radius:12px;background:#ffffff22;color:#fff;font-size:28px;cursor:pointer}
+body:has(.entete){padding-top:72px}
+/* Journal d'interventions : couleur par statut */
+.legende{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-size:15px;margin:14px 0}
+.pastille{display:inline-block;width:14px;height:14px;border-radius:50%;margin-right:4px}
+.st-nouvelle{--c:#1565c0}.st-encours{--c:#e08a00}.st-terminee{--c:#2e8b57}
+.pastille{background:var(--c)}
+.liste-int li{border-left:8px solid var(--c);padding-left:10px;margin-bottom:8px;background:#fafafa;border-radius:6px}
