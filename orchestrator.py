@@ -55,4 +55,25 @@ def main():
     res = load_tool("suivi_par_logement", "Orchestrateur").run(DB)
     log("Orchestrateur", "EXECUTE_OUTIL", "outil:suivi_par_logement", res)
     for r in res: print(f"{r['logement']:>2} {r['nom']:<24} total={r['total']} relayees={r['relayees']} clot={r['cloturees']} att={r['en_attente']} {r['etat']:<8} {r['ouvertes']}")
-if __name__ == "__main__": main()
+
+def run_pending(declencheur="Orchestrateur"):
+    """Traite les interventions en statut 'nouvelle' (ex. ajoutées à la main). Un seul tour ; les suivis restent en attente."""
+    init()
+    with conn() as c: ids = [r[0] for r in c.execute("SELECT id FROM interventions WHERE statut='nouvelle' ORDER BY id")]
+    log("Orchestrateur", "DEMARRE_CYCLE", "systeme", {"mode": "en_attente", "declencheur": declencheur, "interventions": ids})
+    smith = Toolsmith(); rec = Reception(); tri = Triage(smith); disp = Dispatcher(); arch = Archiviste()
+    import random; tech = TechnicienSimule(seed=random.randrange(10**6))
+    suivis = []
+    for iid in ids:
+        with conn() as c: deja = c.execute("SELECT categorie FROM interventions WHERE id=?", (iid,)).fetchone()[0]
+        if not deja: tri.triage(iid)   # ne pas écraser un tri existant (ex. priorité corrigée par l'humain)
+        f = arch.record(iid, tech.work(iid, disp.dispatch(iid)), rec)
+        if f: tri.triage(f); suivis.append(f)
+    if not load_tool("suivi_par_logement", "Orchestrateur"):
+        smith.build("suivi_par_logement", raison="Besoin d'un tableau de bord d'avancement par logement")
+    log("Orchestrateur", "FIN_CYCLE", "systeme", {"traitees": len(ids), "suivis_ouverts": suivis})
+    return len(ids), suivis
+
+if __name__ == "__main__":
+    if "--pending" in sys.argv: print(run_pending())
+    else: main()

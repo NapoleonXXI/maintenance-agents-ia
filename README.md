@@ -23,6 +23,10 @@ cd /workspace/maintenance-agents-ia
 python3 orchestrator.py --reset      # test complet (efface la base)
 setsid nohup python3 sidecar.py > sidecar.log 2>&1 &   # PORT=xxxx pour changer
 ```
+Base non versionnée : `python3 orchestrator.py --reset` la reconstruit à partir du dépôt seul. `python3 orchestrator.py --pending` traite les demandes en attente.
+
+Actions humaines du sidecar (journalisées `Humain:<nom>`) : ajouter une intervention, modifier/clôturer, retirer/réactiver un outil, bouton « Lancer l'équipe » sur les interventions en attente.
+
 Pages : `/` suivi par logement, `/interventions` (+ modifier), `/journal`, `/messages`, `/outils` (code, retirer/réactiver), `/routage`.
 Toute modification humaine est journalisée (`Humain:<nom>`). Le journal est protégé par des triggers SQLite (UPDATE/DELETE refusés).
 

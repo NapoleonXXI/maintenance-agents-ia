@@ -27,8 +27,12 @@ class H(BaseHTTPRequestHandler):
             return self.page("Suivi par logement", body)
         if u.path == "/interventions":
             rows = c.execute("SELECT * FROM interventions ORDER BY logement_id,id").fetchall()
-            body = "<table><tr><th>id</th><th>logement</th><th>description</th><th>catégorie</th><th>priorité</th><th>statut</th><th>parent</th><th>résultat</th><th></th></tr>" + "".join(
-                f"<tr><td>{r['id']}</td><td>{r['logement_id']}</td><td>{e(r['description'])}</td><td>{e(r['categorie'])}</td><td>{e(r['priorite'])}</td><td>{e(r['statut'])}</td><td>{e(r['parent_id'])}</td><td>{e(r['resultat'])}</td><td><a href='/edit?id={r['id']}'>modifier</a></td></tr>" for r in rows) + "</table>"
+            form = ("<h2>Nouvelle intervention</h2><form method=post action='/ajouter'>Nom : <input name=auteur value='Raphaël' size=10> "
+                    "Logement : <select name=logement_id>" + "".join(f"<option value={l['id']}>{l['id']} – {e(l['nom'])}</option>" for l in c.execute("SELECT * FROM logements")) +
+                    "</select> Description : <input name=description size=50 required> <button>Ajouter</button></form>"
+                    "<form method=post action='/cycle' style='margin:10px 0'>Nom : <input name=auteur value='Raphaël' size=10> <button>▶ Lancer l'équipe sur les interventions en attente</button></form>")
+            body = form + "<table><tr><th>id</th><th>logement</th><th>description</th><th>catégorie</th><th>priorité</th><th>statut</th><th>parent</th><th>résultat</th><th></th></tr>" + "".join(
+                f"<tr><td>{r['id']}</td><td>{r['logement_id']}</td><td>{e(r['description'])}</td><td>{e(r['categorie'])}</td><td>{e(r['priorite'])}</td><td>{e(r['statut'])}</td><td>{e(r['parent_id'])}</td><td>{e(r['resultat'])}</td><td><a href='/edit?id={r['id']}'>modifier</a>{"" if r['statut']=='cloturee' else f"<form method=post action='/edit?id={r['id']}'><input type=hidden name=auteur value='Raphaël'><input type=hidden name=statut value='cloturee'><button>clôturer</button></form>"}</td></tr>" for r in rows) + "</table>"
             return self.page("Interventions", body)
         if u.path == "/edit":
             r = c.execute("SELECT * FROM interventions WHERE id=?", (int(q["id"][0]),)).fetchone()
@@ -42,26 +46,37 @@ class H(BaseHTTPRequestHandler):
             return self.page("Routage décidé par les agents", table(c.execute("SELECT * FROM routage").fetchall()))
         if u.path == "/outils":
             rows = c.execute("SELECT * FROM outils").fetchall()
-            body = table(rows) + "".join(f"<form method=post action='/retirer?nom={e(r['nom'])}' style='display:inline'><button>{'Retirer' if r['actif'] else 'Réactiver'} {e(r['nom'])}</button></form> " for r in rows) + "".join(f"<h3>{e(r['nom'])}</h3><pre>{e(open(r['chemin']).read())}</pre>" for r in rows)
+            body = table(rows) + "".join(f"<form method=post action='/retirer?nom={e(r['nom'])}' style='display:inline'><input type=hidden name=auteur value='Raphaël'><button>{'Retirer' if r['actif'] else 'Réactiver'} {e(r['nom'])}</button></form> " for r in rows) + "".join(f"<h3>{e(r['nom'])}</h3><pre>{e(open(r['chemin']).read())}</pre>" for r in rows)
             return self.page("Outils créés par les agents", body)
         self.page("Introuvable", "", 404)
     def do_POST(self):
         u = urllib.parse.urlparse(self.path)
+        data = {k: v[0] for k, v in urllib.parse.parse_qs(self.rfile.read(int(self.headers.get("Content-Length") or 0)).decode(), keep_blank_values=True).items()}
+        auteur = "Humain:" + (data.pop("auteur", "").strip() or "anonyme")
+        def back(loc): self.send_response(303); self.send_header("Location", loc); self.end_headers()
+        if u.path == "/ajouter":
+            with conn() as c:
+                iid = c.execute("INSERT INTO interventions(logement_id,description,statut,cree_le,maj_le) VALUES(?,?,'nouvelle',datetime('now','localtime'),datetime('now','localtime'))",
+                                (int(data["logement_id"]), data["description"])).lastrowid
+            log(auteur, "CREE_INTERVENTION", f"intervention:{iid}", {"logement": int(data["logement_id"]), "description": data["description"]})
+            return back("/interventions")
+        if u.path == "/cycle":
+            log(auteur, "DECLENCHE_CYCLE", "systeme")
+            import orchestrator; orchestrator.run_pending(auteur)
+            return back("/interventions")
         if u.path == "/retirer":
             nom = urllib.parse.parse_qs(u.query)["nom"][0]
             with conn() as c:
                 a = c.execute("SELECT actif FROM outils WHERE nom=?", (nom,)).fetchone()[0]
                 c.execute("UPDATE outils SET actif=? WHERE nom=?", (0 if a else 1, nom))
-            log("Humain:sidecar", "RETIRE_OUTIL" if a else "REACTIVE_OUTIL", f"outil:{nom}")
-            self.send_response(303); self.send_header("Location", "/outils"); self.end_headers(); return
+            log(auteur, "RETIRE_OUTIL" if a else "REACTIVE_OUTIL", f"outil:{nom}")
+            return back("/outils")
         iid = int(urllib.parse.parse_qs(u.query)["id"][0])
-        data = {k: v[0] for k, v in urllib.parse.parse_qs(self.rfile.read(int(self.headers["Content-Length"])).decode(), keep_blank_values=True).items()}
-        auteur = "Humain:" + (data.pop("auteur", "") or "anonyme")
         with conn() as c:
             old = dict(c.execute("SELECT * FROM interventions WHERE id=?", (iid,)).fetchone())
             diff = {k: {"avant": old[k], "apres": v} for k, v in data.items() if k in ("description","categorie","priorite","statut","resultat") and str(old[k] or "") != v}
             for k, d in diff.items(): c.execute(f"UPDATE interventions SET {k}=?, maj_le=datetime('now','localtime') WHERE id=?", (d["apres"], iid))
-        if diff: log(auteur, "MODIFIE_MANUELLEMENT", f"intervention:{iid}", diff)
+        log(auteur, "MODIFIE_MANUELLEMENT" if diff else "MODIFICATION_SANS_CHANGEMENT", f"intervention:{iid}", diff)
         self.send_response(303); self.send_header("Location", "/interventions"); self.end_headers()
     def log_message(self, *a): pass
 if __name__ == "__main__":
