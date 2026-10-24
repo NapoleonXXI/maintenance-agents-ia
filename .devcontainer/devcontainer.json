@@ -1,0 +1,8 @@
+{
+  "name": "maintenance-agents-ia",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12",
+  "postCreateCommand": "bash .devcontainer/demarrer-sidecar.sh init",
+  "postStartCommand": "bash .devcontainer/demarrer-sidecar.sh",
+  "forwardPorts": [8810],
+  "portsAttributes": { "8810": { "label": "Sidecar humain", "onAutoForward": "openBrowser" } }
+}
