@@ -54,7 +54,13 @@ def main():
         smith.build("suivi_par_logement", raison="Besoin d'un tableau de bord d'avancement par logement")
     res = load_tool("suivi_par_logement", "Orchestrateur").run(DB)
     log("Orchestrateur", "EXECUTE_OUTIL", "outil:suivi_par_logement", res)
+    _export()
     for r in res: print(f"{r['logement']:>2} {r['nom']:<24} total={r['total']} relayees={r['relayees']} clot={r['cloturees']} att={r['en_attente']} {r['etat']:<8} {r['ouvertes']}")
+
+def _export():
+    try:
+        import export_static; export_static.export(); log("Orchestrateur", "EXPORTE_PAGES", "docs/")
+    except Exception as x: log("Orchestrateur", "ECHEC_EXPORT", "docs/", {"erreur": str(x)})
 
 def run_pending(declencheur="Orchestrateur"):
     """Traite les interventions en statut 'nouvelle' (ex. ajoutées à la main). Un seul tour ; les suivis restent en attente."""
@@ -72,7 +78,7 @@ def run_pending(declencheur="Orchestrateur"):
     if not load_tool("suivi_par_logement", "Orchestrateur"):
         smith.build("suivi_par_logement", raison="Besoin d'un tableau de bord d'avancement par logement")
     log("Orchestrateur", "FIN_CYCLE", "systeme", {"traitees": len(ids), "suivis_ouverts": suivis})
-    return len(ids), suivis
+    _export(); return len(ids), suivis
 
 if __name__ == "__main__":
     if "--pending" in sys.argv: print(run_pending())

@@ -53,7 +53,11 @@ class H(BaseHTTPRequestHandler):
         u = urllib.parse.urlparse(self.path)
         data = {k: v[0] for k, v in urllib.parse.parse_qs(self.rfile.read(int(self.headers.get("Content-Length") or 0)).decode(), keep_blank_values=True).items()}
         auteur = "Humain:" + (data.pop("auteur", "").strip() or "anonyme")
-        def back(loc): self.send_response(303); self.send_header("Location", loc); self.end_headers()
+        def back(loc):
+            try:
+                import export_static; export_static.export()
+            except Exception: pass
+            self.send_response(303); self.send_header("Location", loc); self.end_headers()
         if u.path == "/ajouter":
             with conn() as c:
                 iid = c.execute("INSERT INTO interventions(logement_id,description,statut,cree_le,maj_le) VALUES(?,?,'nouvelle',datetime('now','localtime'),datetime('now','localtime'))",
