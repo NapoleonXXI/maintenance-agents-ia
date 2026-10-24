@@ -1,0 +1,5 @@
+<% content_for :titre, "Supprimer ##{@i.id} ?" %>
+<div class="iv"><b>#<%= @i.id %></b> <%= @i.description %><br><small>Logement <%= @i.logement_id %> · <%= @i.statut %></small></div>
+<p class="note">Suppression logique : l'intervention est masquée (statut « supprimee »), son état est conservé dans le journal.</p>
+<%= button_to "Oui, supprimer", supprimer_path(@i.id), class: "btn danger" %>
+<a class="btn sec" href="<%= logement_path(@i.logement_id) %>">Non, annuler</a>

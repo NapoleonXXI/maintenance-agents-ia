@@ -3,11 +3,11 @@
 ## Philosophie
 Pas de logiciel figé à mettre à jour : le moteur reste fluide. Les agents écrivent, modifient et retirent leurs propres
 outils (fichiers Python dans `tools/`), décident eux-mêmes du routage (table `routage`), et tout changement est tracé
-dans un journal append-only, visible et modifiable depuis le sidecar humain.
+dans un journal append-only, visible et modifiable depuis l'app humaine **Pilote**.
 
 ## Deux cœurs
 1. **App interne des agents** : `orchestrator.py` (boucle), `agents.py` (agents), `core.py` (SQLite, journal, registre d'outils), `tools/` (code écrit par les agents).
-2. **Sidecar humain** : `sidecar.py` (serveur web stdlib, interface en français) → http://127.0.0.1:8810
+2. **Pilote** (app humaine, Ruby on Rails 8, dossier `pilote/`) → http://127.0.0.1:8810. Elle lit et écrit la même base SQLite que les agents (aucune migration Rails) et journalise chaque action humaine sous `Humain:<prénom>`.
 
 ## Équipe
 - **Réception** : enregistre les demandes (et les suivis).
@@ -21,16 +21,26 @@ dans un journal append-only, visible et modifiable depuis le sidecar humain.
 ```bash
 cd /workspace/maintenance-agents-ia
 python3 orchestrator.py --reset      # test complet (efface la base)
-setsid nohup python3 sidecar.py > sidecar.log 2>&1 &   # PORT=xxxx pour changer
+cd pilote && bundle config set --local path vendor/bundle && bundle install   # une fois
+bin/rails server -b 0.0.0.0 -p 8810                                       # Pilote
+python3 export_static.py   # régénère docs/ (aussi fait automatiquement)
 ```
 Base non versionnée : `python3 orchestrator.py --reset` la reconstruit à partir du dépôt seul. `python3 orchestrator.py --pending` traite les demandes en attente.
 
-Actions humaines du sidecar (journalisées `Humain:<nom>`) : ajouter une intervention, modifier/clôturer, retirer/réactiver un outil, bouton « Lancer l'équipe » sur les interventions en attente.
+Pilote (mobile d'abord, gros boutons, français) :
+- accueil : 10 tuiles carrées numérotées (vert = OK, orange = ouvertes, rouge = urgence), boutons « Nouvelle intervention » et « Lancer l'équipe » (exécute `python3 orchestrator.py --pending`) ;
+- page logement : « Clôturer », « Priorité urgente », « Modifier », « Supprimer » (suppression logique `supprimee`, confirmation en 2 appuis, état avant conservé au journal) ;
+- création en 2 appuis (tuile 1–10 + une ligne de texte) ; prénom demandé une seule fois (cookie) ;
+- journal complet filtrable par logement et par acteur ; classement (faites / en cours, logements, activité des agents, catégories) ;
+- « Avancé » : code des outils (retirer/réactiver), routage, messages.
+Vue publique en lecture seule : https://napoleonxxi.github.io/maintenance-agents-ia/ (générée par `export_static.py`).
 
-Pages : `/` suivi par logement, `/interventions` (+ modifier), `/journal`, `/messages`, `/outils` (code, retirer/réactiver), `/routage`.
 Toute modification humaine est journalisée (`Humain:<nom>`). Le journal est protégé par des triggers SQLite (UPDATE/DELETE refusés).
 
 ## Limites honnêtes
 - **Aucun LLM utilisé** : aucune clé d'API dans l'environnement. La « pensée » des agents est à base de règles et de gabarits de code ; l'auto-adaptation est un comptage de mots récurrents, donc rudimentaire (elle a aussi retenu des mots parasites comme « position », « basse »).
 - L'enchaînement des étapes reste écrit dans `orchestrator.py` ; seuls les outils, le routage et les catégories évoluent à l'exécution.
 - Techniciens, commandes de pièces et messages sont simulés (rien n'est envoyé hors de la machine).
+
+## Prochaines étapes
+- Fonction reportée par Raphaël (« on va créer ça après ») — à préciser.

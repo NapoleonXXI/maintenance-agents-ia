@@ -1,0 +1,19 @@
+<% content_for :titre, "Logement #{@logement.id} – #{@logement.nom}" %>
+<a class="btn" href="/nouvelle?logement=<%= @logement.id %>">➕ Nouvelle intervention ici</a>
+<% if @interventions.empty? %><p>Aucune intervention.</p><% end %>
+<% @interventions.each do |i| %>
+  <div class="iv" style="<%= 'opacity:.65' unless i.ouverte? %>">
+    <b>#<%= i.id %></b> <%= i.description %><br>
+    <span class="tag"><%= i.statut %></span><span class="tag"><%= i.categorie || "non triée" %></span><span class="tag"><%= i.priorite || "-" %></span>
+    <% if i.resultat.present? %><br><small>Résultat : <%= i.resultat %></small><% end %>
+    <div class="row">
+      <% if i.ouverte? %>
+        <%= button_to "Clôturer", cloturer_path(i.id), class: "btn vert" %>
+        <%= button_to "Priorité urgente", urgente_path(i.id), class: "btn danger" %>
+      <% end %>
+      <a class="btn sec" href="<%= modifier_path(i.id) %>">Modifier</a>
+      <a class="btn sec" href="<%= confirmer_suppression_path(i.id) %>">🗑 Supprimer</a>
+    </div>
+  </div>
+<% end %>
+<a class="btn sec" href="/">← Accueil</a>

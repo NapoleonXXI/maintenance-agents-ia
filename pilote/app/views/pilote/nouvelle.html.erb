@@ -1,0 +1,13 @@
+<% content_for :titre, "Nouvelle intervention" %>
+<%= form_tag "/interventions" do %>
+  <p>1. Logement :</p>
+  <div class="choix">
+  <% @logements.each do |l| %>
+    <label title="<%= l.nom %>"><input type="radio" name="logement_id" value="<%= l.id %>" required <%= "checked" if params[:logement].to_i == l.id %>><span><%= l.id %></span></label>
+  <% end %>
+  </div>
+  <p>2. Problème :</p>
+  <input name="description" required placeholder="ex. fuite sous l’évier" autofocus>
+  <button class="btn">Envoyer</button>
+<% end %>
+<a class="btn sec" href="/">Annuler</a>

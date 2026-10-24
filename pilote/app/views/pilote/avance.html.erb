@@ -1,0 +1,13 @@
+<% content_for :titre, "Avancé" %>
+<h2>Outils écrits par les agents</h2>
+<% @outils.each do |o| %>
+  <div class="iv"><b><%= o.nom %></b> v<%= o.version %> · <%= o.actif.to_i == 1 ? "actif" : "retiré" %> · par <%= o.auteur %><br><small><%= o.description %></small>
+    <details><summary>Code</summary><pre><%= File.exist?(o.chemin.to_s) ? File.read(o.chemin) : "(fichier introuvable)" %></pre></details>
+    <%= button_to (o.actif.to_i == 1 ? "Retirer" : "Réactiver"), basculer_path(o.nom), class: "btn sec" %></div>
+<% end %>
+<h2>Routage décidé par les agents</h2>
+<div class="scroll"><table><tr><th>catégorie</th><th>technicien</th><th>créé par</th><th>le</th></tr>
+<% @routage.each do |r| %><tr><td><%= r.categorie %></td><td><%= r.technicien %></td><td><%= r.cree_par %></td><td><%= r.cree_le %></td></tr><% end %></table></div>
+<h2>Messages (200 derniers)</h2>
+<% @messages.each do |m| %><div class="iv"><small><%= m.envoye_le %> · #<%= m.intervention_id %></small> <b><%= m.de %> → <%= m.vers %></b><br><%= m.contenu %></div><% end %>
+<a class="btn sec" href="/">← Accueil</a>

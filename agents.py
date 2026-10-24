@@ -83,8 +83,9 @@ class Triage(Agent):
     def reload(self): self.tool = load_tool("classifier_categorie", self.nom)
     def triage(self, iid):
         with conn() as c:
-            d = c.execute("SELECT description FROM interventions WHERE id=?", (iid,)).fetchone()[0]
+            d, ancienne = c.execute("SELECT description, priorite FROM interventions WHERE id=?", (iid,)).fetchone()
             cat, prio = self.tool.run(d)
+            if ancienne == "urgente": prio = "urgente"   # ne jamais rétrograder une urgence (souvent posée par l'humain)
             c.execute("UPDATE interventions SET categorie=?,priorite=?,maj_le=? WHERE id=?", (cat, prio, now(), iid))
         self.log("TRIE_INTERVENTION", f"intervention:{iid}", {"categorie": cat, "priorite": prio})
 

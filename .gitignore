@@ -2,3 +2,12 @@ __pycache__/
 *.log
 maintenance.db
 *.db-journal
+pilote/vendor/bundle/
+pilote/.bundle/
+pilote/log/
+pilote/tmp/
+pilote/storage/
+pilote/config/master.key
+pilote/config/credentials.yml.enc
+maintenance.db-shm
+maintenance.db-wal

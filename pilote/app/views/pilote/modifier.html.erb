@@ -1,0 +1,6 @@
+<% content_for :titre, "Modifier ##{@i.id}" %>
+<%= form_tag maj_path(@i.id) do %>
+  <% PiloteController::CHAMPS.each do |k| %><p><%= k %> :</p><input name="<%= k %>" value="<%= @i[k] %>"><% end %>
+  <button class="btn">Enregistrer</button>
+<% end %>
+<a class="btn sec" href="<%= logement_path(@i.logement_id) %>">Annuler</a>

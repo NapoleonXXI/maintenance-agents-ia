@@ -1,0 +1,6 @@
+<% content_for :titre, "Votre prénom" %>
+<p>Il sera mémorisé sur cet appareil et utilisé pour tracer vos actions (Humain:prénom).</p>
+<%= form_tag "/nom" do %>
+  <input name="nom" value="<%= nom_humain %>" required autofocus><input type="hidden" name="retour" value="<%= params[:retour] %>">
+  <button class="btn">Enregistrer</button>
+<% end %>

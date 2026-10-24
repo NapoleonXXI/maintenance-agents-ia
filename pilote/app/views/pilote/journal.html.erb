@@ -1,0 +1,15 @@
+<% content_for :titre, "Journal complet (append-only)" %>
+<%= form_tag "/journal", method: :get do %>
+  <div class="row">
+    <select name="logement" onchange="this.form.submit()"><option value="">Tous les logements</option>
+      <% @logements.each do |l| %><option value="<%= l.id %>" <%= "selected" if params[:logement].to_i == l.id %>><%= l.id %> – <%= l.nom %></option><% end %></select>
+    <select name="acteur" onchange="this.form.submit()"><option value="">Tous les acteurs</option>
+      <% @acteurs.each do |a| %><option <%= "selected" if params[:acteur] == a %>><%= a %></option><% end %></select>
+  </div>
+  <noscript><button class="btn">Filtrer</button></noscript>
+<% end %>
+<p><%= @total %> entrée(s)<%= " (2000 plus récentes affichées)" if @total > 2000 %>.</p>
+<% @entrees.each do |r| %>
+  <div class="iv"><small><%= r.horodatage %></small> · <b><%= r.acteur %></b> · <%= r.action %> · <%= r.objet %>
+  <% if r.details.present? %><br><small style="color:#555"><%= r.details.first(400) %></small><% end %></div>
+<% end %>

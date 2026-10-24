@@ -1,0 +1,9 @@
+# Pilote partage la base du moteur d'agents Python (../maintenance.db). Aucune migration Rails.
+default: &default
+  adapter: sqlite3
+  timeout: 5000
+  database: <%= ENV.fetch("MAINTENANCE_DB") { File.expand_path("../../maintenance.db", __dir__) } %>
+development:
+  <<: *default
+production:
+  <<: *default

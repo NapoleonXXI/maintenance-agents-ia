@@ -1,8 +1,9 @@
 {
-  "name": "maintenance-agents-ia",
-  "image": "mcr.microsoft.com/devcontainers/python:3.12",
-  "postCreateCommand": "bash .devcontainer/demarrer-sidecar.sh init",
-  "postStartCommand": "bash .devcontainer/demarrer-sidecar.sh",
+  "name": "maintenance-agents-ia – Pilote",
+  "image": "mcr.microsoft.com/devcontainers/ruby:3.3",
+  "features": { "ghcr.io/devcontainers/features/python:1": { "version": "3.12" } },
+  "postCreateCommand": "bash .devcontainer/demarrer-pilote.sh init",
+  "postStartCommand": "bash .devcontainer/demarrer-pilote.sh",
   "forwardPorts": [8810],
-  "portsAttributes": { "8810": { "label": "Sidecar humain", "onAutoForward": "openBrowser" } }
+  "portsAttributes": { "8810": { "label": "Pilote", "onAutoForward": "openBrowser" } }
 }

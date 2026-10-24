@@ -6,13 +6,16 @@
                           ▼              ▼                     ▼
                   tools/*.py (écrits  messages            Archiviste ─▶ clôture ou suivi
                   par le Forgeron)                                     (nouvelle intervention liée)
-                 tout ─▶ journal (append-only, SQLite)  ◀── sidecar humain (lecture + actions)
+                 tout ─▶ journal (append-only, SQLite)  ◀── Pilote (Rails, lecture + actions)
 ```
 
 ## Deux cœurs
 - **Cœur agents** : `core.py` (base, journal, registre d'outils versionné, retrait), `agents.py` (Réception, Trieur,
   Répartiteur, Archiviste, Forgeron + technicien simulé), `orchestrator.py` (test complet ou traitement des demandes en attente).
-- **Cœur humain** : `sidecar.py`, serveur web stdlib en français, port 8810.
+- **Cœur humain** : **Pilote**, app Ruby on Rails 8 (`pilote/`, sans build JS), port 8810. Modèles ActiveRecord branchés sur les tables existantes
+  (`journal` en insertion seule), contrôleur unique `PiloteController`, CSS partagé `pilote/public/pilote.css`.
+  « Lancer l'équipe » exécute `python3 orchestrator.py --pending`. Suppression = statut `supprimee` + entrée `SUPPRIME` avec l'état avant.
+- **Vue publique** : `export_static.py` (Python) génère `docs/` en lecture seule (tuiles, logements, classement, journal, avancé) après chaque cycle et chaque action Pilote.
 
 ## Base SQLite (`maintenance.db`, non versionnée, reconstruite par le dépôt)
 `logements`, `interventions` (statuts : nouvelle, assignee, a_suivre, suivi_ouvert, cloturee ; `parent_id` relie un suivi),
@@ -27,4 +30,5 @@ Les fichiers de `tools/` présents dans le dépôt sont ceux générés par le d
 ## Commandes
 - `python3 orchestrator.py --reset` : reconstruit la base depuis zéro et rejoue le test (2 vagues + adaptation).
 - `python3 orchestrator.py --pending` : l'équipe traite les interventions en statut `nouvelle`.
-- `python3 sidecar.py` : app humaine.
+- `cd pilote && bin/rails server -b 0.0.0.0 -p 8810` : Pilote.
+- Codespaces : `.devcontainer/` installe Ruby 3.3 + Python 3.12, les gems, et démarre Pilote sur 8810.

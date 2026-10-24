@@ -1,0 +1,17 @@
+<div class="row">
+  <a class="btn" href="/nouvelle">➕ Nouvelle intervention</a>
+  <%= button_to "▶ Lancer l'équipe", lancer_path, class: "btn vert", form: { style: "flex:1" } %>
+</div>
+<div class="tuiles">
+<% @logements.each do |l| o = @ouvertes[l.id].to_i; u = @urgentes[l.id].to_i %>
+  <a class="tuile <%= u > 0 ? 'urgent' : (o > 0 ? 'encours' : 'ok') %>" href="<%= logement_path(l.id) %>">
+    <span class="num"><%= l.id %></span><span class="nom"><%= l.nom %></span>
+    <span class="ouv"><%= o == 0 ? "OK" : "#{o} ouverte#{'s' if o > 1}" %><%= " · #{u} urg." if u > 0 %></span>
+  </a>
+<% end %>
+</div>
+<div class="row">
+  <a class="btn sec" href="/classement">🏆 Classement</a>
+  <a class="btn sec" href="/journal">📜 Journal</a>
+  <a class="btn sec" href="/avance">⚙️ Avancé</a>
+</div>

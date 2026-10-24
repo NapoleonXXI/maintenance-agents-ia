@@ -6,7 +6,7 @@ Dossier : /workspace/maintenance-agents-ia — dépôt : github.com/NapoleonXXI/
 ## Accès
 - Lire / exécuter : `python3 orchestrator.py` (test complet, `--reset` efface la base), `python3 tools/<outil>.py`.
 - Base : `maintenance.db` (SQLite). Journal en ajout seul : toute action y est inscrite avec le nom de l'agent.
-- Sidecar humain : `python3 sidecar.py` (port 8810).
+- App humaine « Pilote » (Ruby on Rails, dossier `pilote/`) : `cd pilote && bin/rails server -b 0.0.0.0 -p 8810`. Elle lit/écrit la même base `maintenance.db`.
 
 ## Qui écrit quoi
 - Forgeron : seul à créer/modifier/retirer le code dans `tools/` et le cœur ; versionne, journalise, puis `git add -A && git commit -m "Forgeron: ..." && git push`.

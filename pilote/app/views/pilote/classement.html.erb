@@ -1,0 +1,10 @@
+<% content_for :titre, "Classement" %>
+<div class="kpi"><div><b><%= @faites %></b>faites</div><div><b><%= @en_cours %></b>en cours</div><div><b><%= @relayees %></b>relayées</div></div>
+<h2>Logements (plus d'ouvertes en tête)</h2>
+<% @par_logement.each_with_index do |(l, o, f), n| %>
+  <a class="rang" style="text-decoration:none;color:inherit" href="<%= logement_path(l.id) %>"><span><%= n + 1 %>. <b><%= l.id %></b> <%= l.nom %></span><span><b><%= o %></b> ouv. · <%= f %> faites</span></a>
+<% end %>
+<h2>Activité des agents (journal)</h2>
+<% @par_agent.each do |a, c| %><div class="rang"><span><%= a %></span><b><%= c %></b></div><% end %>
+<h2>Par catégorie</h2>
+<% @par_categorie.each do |cat, c| %><div class="rang"><span><%= cat || "non triée" %></span><b><%= c %></b></div><% end %>
