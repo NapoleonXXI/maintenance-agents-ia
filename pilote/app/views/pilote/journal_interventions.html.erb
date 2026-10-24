@@ -1,0 +1,17 @@
+<% content_for :nu, true %>
+<div class="page-nav">
+<div class="periodes">
+<% { "jour" => "Jour", "semaine" => "Semaine", "mois" => "Mois" }.each do |k, v| %>
+  <a class="per <%= 'actif' if @periode == k %>" href="<%= journal_interventions_path(periode: k) %>"><%= v %></a>
+<% end %>
+</div>
+<% if @interventions.empty? %>
+  <p class="vide">Aucune intervention</p>
+<% else %>
+  <ul class="liste-int">
+  <% @interventions.each do |i| %>
+    <li><b><%= i.logement_id %></b> · <%= i.cree_le.to_s.tr("T", " ")[0, 16] %> · <%= i.description %> · <%= i.statut %></li>
+  <% end %>
+  </ul>
+<% end %>
+</div>

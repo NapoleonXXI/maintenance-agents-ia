@@ -10,6 +10,8 @@ Rails.application.routes.draw do
   get  "interventions/:id/supprimer" => "pilote#confirmer_suppression", as: :confirmer_suppression
   post "interventions/:id/supprimer" => "pilote#supprimer", as: :supprimer
   get  "journal" => "pilote#journal"
+  get  "journal-interventions" => "pilote#journal_interventions", as: :journal_interventions
+  get  "a-venir" => "pilote#a_venir", as: :a_venir
   get  "classement" => "pilote#classement"
   get  "avance" => "pilote#avance"
   post "outils/:nom/basculer" => "pilote#basculer", as: :basculer

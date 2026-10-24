@@ -1,0 +1,48 @@
+<!doctype html><html lang=fr><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><title>Pilote</title><style>/* Pilote – feuille partagée par l'app Rails et l'export statique (docs/) */
+body{font-family:system-ui,sans-serif;margin:0;background:#f3f5f8;color:#1d2433}
+header{background:#14365d;color:#fff;padding:14px 16px;font-size:22px;font-weight:700}
+header a{color:#fff;text-decoration:none} header small{font-weight:400;font-size:14px}
+main{padding:12px;max-width:620px;margin:auto}
+.tuiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin:12px 0}
+.tuile{aspect-ratio:1/1;border-radius:18px;color:#fff;text-decoration:none;display:flex;flex-direction:column;
+ align-items:center;justify-content:center;text-align:center;box-shadow:0 2px 6px #0003}
+.tuile .num{font-size:64px;font-weight:800;line-height:1}.tuile .nom{font-size:13px;opacity:.9;padding:0 6px}
+.tuile .ouv{font-size:16px;font-weight:600;margin-top:4px}
+.ok{background:#2e8b57}.encours{background:#e08a00}.urgent{background:#c62828}
+.btn,button.btn{display:block;width:100%;box-sizing:border-box;padding:16px;margin:8px 0;border:0;border-radius:12px;font-size:18px;
+ font-weight:600;background:#14365d;color:#fff;text-align:center;text-decoration:none;cursor:pointer;font-family:inherit}
+.btn.sec{background:#dde3ec;color:#14365d}.btn.danger{background:#c62828}.btn.vert{background:#2e8b57}
+.row{display:flex;gap:8px;flex-wrap:wrap}.row>*{flex:1;min-width:120px}.row form{margin:0}
+.iv{background:#fff;border-radius:12px;padding:12px;margin:10px 0;box-shadow:0 1px 3px #0002}
+.tag{display:inline-block;padding:2px 8px;border-radius:8px;background:#eef;font-size:13px;margin:2px 4px 2px 0}
+input,select,textarea{width:100%;box-sizing:border-box;font-size:18px;padding:12px;border-radius:10px;border:1px solid #bbb;margin:6px 0}
+table{border-collapse:collapse;width:100%;background:#fff;font-size:12px}td,th{border:1px solid #ddd;padding:4px;vertical-align:top}
+.scroll{overflow-x:auto}pre{background:#fff;padding:8px;overflow-x:auto;font-size:12px}
+.note{background:#fff8d6;padding:10px;border-radius:10px}.flash{background:#e3f4e8;padding:12px;border-radius:10px;font-size:16px}
+.choix{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.choix label{aspect-ratio:1/1;background:#fff;border:3px solid #14365d;
+ border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800}
+.choix input{display:none}.choix input:checked+span{color:#fff}.choix label:has(input:checked){background:#14365d;color:#fff}
+.kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.kpi div{background:#fff;border-radius:14px;padding:14px;text-align:center}
+.kpi b{display:block;font-size:44px}.rang{display:flex;justify-content:space-between;background:#fff;border-radius:10px;padding:12px;
+ margin:6px 0;font-size:18px}.rang b{font-size:22px}
+/* Accueil : uniquement 10 grandes cases carrées */
+.tuiles10{display:grid;grid-template-columns:repeat(2,1fr);gap:3vmin;padding:6vmin 8vmin;max-width:620px;margin:auto;box-sizing:border-box}
+@media (min-width:700px){.tuiles10{grid-template-columns:repeat(5,1fr)}}
+.case{aspect-ratio:1/1;border-radius:6vmin;display:flex;align-items:center;justify-content:center;color:#fff;
+ font-size:clamp(36px,12vmin,84px);font-weight:800;text-decoration:none;box-shadow:0 2px 8px #0003}
+@media (min-width:700px){.case{border-radius:24px;font-size:clamp(32px,5vw,64px)}}
+/* Barre de navigation fixe en bas */
+body{padding-bottom:96px}
+.barre{position:fixed;left:0;right:0;bottom:0;display:flex;background:#fff;border-top:1px solid #ddd;
+ box-shadow:0 -2px 8px #0002;padding-bottom:env(safe-area-inset-bottom);z-index:100}
+.barre a{flex:1;min-height:72px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+ font-size:30px;text-decoration:none;color:#222}
+.barre a span{font-size:13px;margin-top:2px}
+.barre a:first-child{flex:0 0 88px}
+.page-nav{max-width:620px;margin:auto;padding:6vmin 4vmin}
+.periodes{display:flex;gap:8px}
+.per{flex:1;text-align:center;padding:16px 0;border-radius:12px;background:#eee;color:#222;text-decoration:none;font-size:18px;font-weight:600}
+.per.actif{background:#2e7d32;color:#fff}
+.vide{text-align:center;color:#888;font-size:20px;margin-top:40px}
+.liste-int{list-style:none;padding:0}.liste-int li{padding:12px 0;border-bottom:1px solid #eee}
+</style><link rel=stylesheet href='pilote.css'><body><div class=page-nav><div class=periodes><a class=per href='#' data-p=jour>Jour</a><a class=per href='#' data-p=semaine>Semaine</a><a class=per href='#' data-p=mois>Mois</a></div><div id=z></div></div><script>const D=[];const J={jour:1,semaine:7,mois:30};function v(p){document.querySelectorAll('.per').forEach(a=>a.classList.toggle('actif',a.dataset.p==p));const t=Date.now()-J[p]*864e5,L=D.filter(i=>new Date(i.cree_le)>=t),z=document.getElementById('z');z.innerHTML=L.length?'<ul class=liste-int>'+L.map(i=>'<li><b>'+i.logement_id+'</b> · '+i.cree_le.replace('T',' ').slice(0,16)+' · '+String(i.description).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))+' · '+i.statut+'</li>').join('')+'</ul>':'<p class=vide>Aucune intervention</p>';}document.querySelectorAll('.per').forEach(a=>a.onclick=e=>{e.preventDefault();v(a.dataset.p)});v('jour');</script><nav class=barre><a href='index.html' aria-label='Accueil'>🏠</a><a href='journal.html'>📋<span>Journal d'interventions</span></a><a href='a-venir.html'>⋯<span>À venir</span></a></nav></body></html>

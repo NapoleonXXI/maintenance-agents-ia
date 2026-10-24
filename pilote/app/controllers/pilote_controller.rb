@@ -37,6 +37,18 @@ class PiloteController < ApplicationController
     redirect_to logement_path(i.logement_id), notice: "Intervention ##{i.id} supprimée (tracée au journal)."
   end
 
+  PERIODES = { "jour" => 1.day, "semaine" => 7.days, "mois" => 30.days }.freeze
+
+  # Journal d'interventions : interventions de la période (jour / semaine / mois), plus récentes d'abord
+  def journal_interventions
+    @periode = PERIODES.key?(params[:periode]) ? params[:periode] : "jour"
+    depuis = (Time.zone.now - PERIODES[@periode]).strftime("%Y-%m-%dT%H:%M:%S")
+    @interventions = Intervention.visibles.where("cree_le >= ?", depuis).order(cree_le: :desc)
+  end
+
+  # Troisième onglet : contenu non encore décidé par le propriétaire
+  def a_venir; end
+
   def journal
     rel = JournalEntry.order(id: :desc)
     rel = rel.where(acteur: params[:acteur]) if params[:acteur].present?

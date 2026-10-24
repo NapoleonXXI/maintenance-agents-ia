@@ -17,5 +17,10 @@
       <%= nom_humain ? "Vous êtes : #{nom_humain}" : "Prénom non défini" %> · <a href="/nom">changer</a></p>
   </main>
 <% end %>
+<nav class="barre">
+  <a href="/" aria-label="Accueil">🏠</a>
+  <a href="<%= journal_interventions_path %>">📋<span>Journal d'interventions</span></a>
+  <a href="<%= a_venir_path %>">⋯<span>À venir</span></a>
+</nav>
 </body>
 </html>

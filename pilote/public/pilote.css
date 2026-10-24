@@ -31,3 +31,17 @@ table{border-collapse:collapse;width:100%;background:#fff;font-size:12px}td,th{b
 .case{aspect-ratio:1/1;border-radius:6vmin;display:flex;align-items:center;justify-content:center;color:#fff;
  font-size:clamp(36px,12vmin,84px);font-weight:800;text-decoration:none;box-shadow:0 2px 8px #0003}
 @media (min-width:700px){.case{border-radius:24px;font-size:clamp(32px,5vw,64px)}}
+/* Barre de navigation fixe en bas */
+body{padding-bottom:96px}
+.barre{position:fixed;left:0;right:0;bottom:0;display:flex;background:#fff;border-top:1px solid #ddd;
+ box-shadow:0 -2px 8px #0002;padding-bottom:env(safe-area-inset-bottom);z-index:100}
+.barre a{flex:1;min-height:72px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+ font-size:30px;text-decoration:none;color:#222}
+.barre a span{font-size:13px;margin-top:2px}
+.barre a:first-child{flex:0 0 88px}
+.page-nav{max-width:620px;margin:auto;padding:6vmin 4vmin}
+.periodes{display:flex;gap:8px}
+.per{flex:1;text-align:center;padding:16px 0;border-radius:12px;background:#eee;color:#222;text-decoration:none;font-size:18px;font-weight:600}
+.per.actif{background:#2e7d32;color:#fff}
+.vide{text-align:center;color:#888;font-size:20px;margin-top:40px}
+.liste-int{list-style:none;padding:0}.liste-int li{padding:12px 0;border-bottom:1px solid #eee}

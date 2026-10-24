@@ -1,5 +1,5 @@
 """Export statique en lecture seule de Pilote vers docs/ (GitHub Pages). Même look (pilote/public/pilote.css)."""
-import os, glob, shutil, datetime, html, sqlite3
+import os, glob, json, shutil, datetime, html, sqlite3
 from zoneinfo import ZoneInfo
 BASE = os.path.dirname(os.path.abspath(__file__)); DB = os.path.join(BASE, "maintenance.db"); OUT = os.path.join(BASE, "docs")
 CODESPACE = "https://github.com/codespaces/new?repo=NapoleonXXI%2Fmaintenance-agents-ia&ref=main"
@@ -23,9 +23,30 @@ def export():
     urg = dict(c.execute(f"SELECT logement_id, COUNT(*) FROM interventions WHERE statut IN {OUV} AND priorite='urgente' GROUP BY 1").fetchall())
     cases = "".join(f"<div class='case {'urgent' if urg.get(i) else ('encours' if ouv.get(i) else 'ok')}'>{i}</div>"
                     for (i,) in c.execute("SELECT id FROM logements ORDER BY id"))
+    css = open(os.path.join(BASE, "pilote", "public", "pilote.css")).read()   # CSS inliné : rendu fiable même sans pilote.css
+    tete = ("<!doctype html><html lang=fr><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'>"
+            "<title>Pilote</title><style>" + css + "</style><link rel=stylesheet href='pilote.css'><body>")
+    barre = ("<nav class=barre><a href='index.html' aria-label='Accueil'>🏠</a>"
+             "<a href='journal.html'>📋<span>Journal d'interventions</span></a>"
+             "<a href='a-venir.html'>⋯<span>À venir</span></a></nav></body></html>")
     with open(os.path.join(OUT, "index.html"), "w") as fh:
-        fh.write("<!doctype html><html lang=fr><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'>"
-                 f"<title>Pilote</title><link rel=stylesheet href='pilote.css'><body><div class=tuiles10>{cases}</div></body></html>")
+        fh.write(f"{tete}<div class=tuiles10>{cases}</div>{barre}")
+    # Journal d'interventions : données réelles de la base, embarquées en JSON, filtrées côté client par période
+    rows = [dict(r) for r in c.execute("SELECT id, logement_id, description, statut, cree_le FROM interventions "
+                                         "WHERE statut != 'supprimee' ORDER BY cree_le DESC")]
+    data = json.dumps(rows, ensure_ascii=False).replace("</", "<\\/")
+    js = ("<script>const D=" + data + ";const J={jour:1,semaine:7,mois:30};"
+          "function v(p){document.querySelectorAll('.per').forEach(a=>a.classList.toggle('actif',a.dataset.p==p));"
+          "const t=Date.now()-J[p]*864e5,L=D.filter(i=>new Date(i.cree_le)>=t),z=document.getElementById('z');"
+          "z.innerHTML=L.length?'<ul class=liste-int>'+L.map(i=>'<li><b>'+i.logement_id+'</b> · '+i.cree_le.replace('T',' ').slice(0,16)+' · '+"
+          "String(i.description).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))+' · '+i.statut+'</li>').join('')+'</ul>'"
+          ":'<p class=vide>Aucune intervention</p>';}"
+          "document.querySelectorAll('.per').forEach(a=>a.onclick=e=>{e.preventDefault();v(a.dataset.p)});v('jour');</script>")
+    per = "".join(f"<a class=per href='#' data-p={k}>{l}</a>" for k, l in (("jour","Jour"),("semaine","Semaine"),("mois","Mois")))
+    with open(os.path.join(OUT, "journal.html"), "w") as fh:
+        fh.write(f"{tete}<div class=page-nav><div class=periodes>{per}</div><div id=z></div></div>{js}{barre}")
+    with open(os.path.join(OUT, "a-venir.html"), "w") as fh:
+        fh.write(f"{tete}<div class=page-nav><p class=vide>À venir</p></div>{barre}")
     open(os.path.join(OUT, ".nojekyll"), "w").close()
     return OUT
 if __name__ == "__main__": print(export())
