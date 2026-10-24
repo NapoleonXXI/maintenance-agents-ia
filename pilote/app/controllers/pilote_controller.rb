@@ -8,6 +8,9 @@ class PiloteController < ApplicationController
     @logements = Logement.order(:id)
     @ouvertes = Intervention.ouvertes.group(:logement_id).count
     @urgentes = Intervention.ouvertes.where(priorite: "urgente").group(:logement_id).count
+    # pastille : bleue si au moins une Nouvelle (prioritaire), sinon orange si En cours, sinon aucune
+    @nouv = Intervention.where(statut: "nouvelle").distinct.pluck(:logement_id)
+    @enc = Intervention.where.not(statut: %w[nouvelle cloturee suivi_ouvert supprimee]).distinct.pluck(:logement_id)
   end
 
   def logement

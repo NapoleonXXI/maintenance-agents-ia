@@ -41,7 +41,7 @@ python3 export_static.py   # régénère docs/ : uniquement les 10 cases (aussi 
 Base non versionnée : `python3 orchestrator.py --reset` la reconstruit à partir du dépôt seul. `python3 orchestrator.py --pending` traite les demandes en attente.
 
 Pilote (mobile d'abord, gros boutons, français) :
-- accueil : uniquement 10 grandes cases carrées numérotées 1–10 (vert = OK, orange = ouvertes, rouge = urgence) ; tout le reste (nouvelle intervention, Lancer l'équipe, journal, classement, Avancé) est sur la page d'un logement ;
+- accueil : uniquement 10 grandes cases carrées numérotées 1–10 (vert = OK, orange = ouvertes, rouge = urgence) ; pastille en haut à gauche : bleue si au moins une intervention Nouvelle (prioritaire, à traiter), sinon orange si En cours, aucune si tout est terminé ; tout le reste (nouvelle intervention, Lancer l'équipe, journal, classement, Avancé) est sur la page d'un logement ;
 - page logement : « Clôturer », « Priorité urgente », « Modifier », « Supprimer » (suppression logique `supprimee`, confirmation en 2 appuis, état avant conservé au journal) ;
 - création en 2 appuis (tuile 1–10 + une ligne de texte) ; prénom demandé une seule fois (cookie) ;
 - journal complet filtrable par logement et par acteur ; classement (faites / en cours, logements, activité des agents, catégories) ;

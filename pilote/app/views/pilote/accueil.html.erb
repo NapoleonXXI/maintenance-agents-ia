@@ -1,6 +1,6 @@
 <% content_for :nu, true %>
 <div class="tuiles10">
 <% @logements.each do |l| o = @ouvertes[l.id].to_i; u = @urgentes[l.id].to_i %>
-  <a class="case <%= u > 0 ? 'urgent' : (o > 0 ? 'encours' : 'ok') %>" href="<%= logement_path(l.id) %>" aria-label="Logement <%= l.id %>"><%= l.id %></a>
+  <a class="case <%= u > 0 ? 'urgent' : (o > 0 ? 'encours' : 'ok') %>" href="<%= logement_path(l.id) %>" aria-label="Logement <%= l.id %>"><% g = @nouv.include?(l.id) ? "nouvelle" : (@enc.include?(l.id) ? "encours" : nil) %><% if g %><span class="pastille-case st-<%= g %>"></span><% end %><%= l.id %></a>
 <% end %>
 </div>

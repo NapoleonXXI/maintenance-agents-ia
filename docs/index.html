@@ -56,4 +56,8 @@ body:has(.entete){padding-top:72px}
 .st-nouvelle{--c:#1565c0}.st-encours{--c:#e08a00}.st-terminee{--c:#2e8b57}
 .pastille{background:var(--c)}
 .liste-int li{border-left:8px solid var(--c);padding-left:10px;margin-bottom:8px;background:#fafafa;border-radius:6px}
+/* Pastille d'état sur les cases de l'accueil (bleue = Nouvelle, orange = En cours) */
+.case{position:relative}
+.pastille-case{position:absolute;top:8%;left:8%;width:clamp(16px,4.5vmin,26px);height:clamp(16px,4.5vmin,26px);border-radius:50%;
+ background:var(--c);border:3px solid #fff;box-shadow:0 1px 4px #0006}
 </style><link rel=stylesheet href='pilote.css'><body><div class=tuiles10><div class='case ok'>1</div><div class='case ok'>2</div><div class='case ok'>3</div><div class='case ok'>4</div><div class='case ok'>5</div><div class='case ok'>6</div><div class='case ok'>7</div><div class='case ok'>8</div><div class='case ok'>9</div><div class='case ok'>10</div></div><nav class=barre><a href='index.html' aria-label='Accueil'>🏠</a><a href='journal.html'>📋<span>Journal d'interventions</span></a><a href='a-venir.html'>⋯<span>À venir</span></a></nav></body></html>

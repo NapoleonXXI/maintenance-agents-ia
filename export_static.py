@@ -21,7 +21,11 @@ def export():
     shutil.copy(os.path.join(BASE, "pilote", "public", "pilote.css"), OUT)
     ouv = dict(c.execute(f"SELECT logement_id, COUNT(*) FROM interventions WHERE statut IN {OUV} GROUP BY 1").fetchall())
     urg = dict(c.execute(f"SELECT logement_id, COUNT(*) FROM interventions WHERE statut IN {OUV} AND priorite='urgente' GROUP BY 1").fetchall())
-    cases = "".join(f"<div class='case {'urgent' if urg.get(i) else ('encours' if ouv.get(i) else 'ok')}'>{i}</div>"
+    # pastille : bleue si au moins une Nouvelle (prioritaire, à traiter), sinon orange si En cours, sinon rien
+    nouv = {r[0] for r in c.execute("SELECT DISTINCT logement_id FROM interventions WHERE statut='nouvelle'")}
+    enc = {r[0] for r in c.execute("SELECT DISTINCT logement_id FROM interventions WHERE statut NOT IN ('nouvelle','cloturee','suivi_ouvert','supprimee')")}
+    past = lambda i: "<span class='pastille-case st-nouvelle'></span>" if i in nouv else ("<span class='pastille-case st-encours'></span>" if i in enc else "")
+    cases = "".join(f"<div class='case {'urgent' if urg.get(i) else ('encours' if ouv.get(i) else 'ok')}'>{past(i)}{i}</div>"
                     for (i,) in c.execute("SELECT id FROM logements ORDER BY id"))
     css = open(os.path.join(BASE, "pilote", "public", "pilote.css")).read()   # CSS inliné : rendu fiable même sans pilote.css
     tete = ("<!doctype html><html lang=fr><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'>"
